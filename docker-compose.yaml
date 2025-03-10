@@ -1,4 +1,4 @@
-# Remove 'version' field to fix warning
+# Updated docker-compose with localhost binding and alternate ports
 services:
   # Elasticsearch for logging
   elasticsearch:
@@ -9,7 +9,7 @@ services:
       - xpack.security.enabled=false
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
-      - "9200:9200"
+      - "127.0.0.1:9200:9200"
     volumes:
       - es_data:/usr/share/elasticsearch/data
     networks:
@@ -20,7 +20,7 @@ services:
     image: kibana:8.6.2
     container_name: proxy_kibana
     ports:
-      - "5601:5601"
+      - "127.0.0.1:5601:5601"
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
@@ -33,7 +33,7 @@ services:
     image: nginx:latest
     container_name: http_server
     ports:
-      - "8081:80"
+      - "127.0.0.1:8081:80"
     volumes:
       - ./docker/http/htdocs:/usr/share/nginx/html/
     networks:
@@ -53,8 +53,8 @@ services:
     image: fauria/vsftpd
     container_name: ftp_server
     ports:
-      - "21:21"
-      - "30000-30009:30000-30009"
+      - "127.0.0.1:2121:21"  # Changed from 21 to 2121
+      - "127.0.0.1:30000-30009:30000-30009"
     environment:
       - FTP_USER=testuser
       - FTP_PASS=testpass
@@ -80,20 +80,21 @@ services:
     image: internetsystemsconsortium/bind9:9.18
     container_name: dns_server
     ports:
-      - "53:53/udp"
-      - "53:53/tcp"
+      - "127.0.0.1:5300:53/udp"  # Changed from 5353 to 5300
+      - "127.0.0.1:5300:53/tcp"  # Changed from 5353 to 5300
     volumes:
       - ./docker/dns/config:/etc/bind
       - ./docker/dns/zones:/var/lib/bind
     networks:
       - proxy_network
+    command: named -g  # Run in foreground for better logging
 
   dns_client:
     image: alpine:latest
     container_name: dns_client
     depends_on:
       - dns_server
-    entrypoint: ["sh", "-c", "apk add --no-cache bind-tools && sleep 10 && echo 'DNS Client ready. Run: docker exec -it dns_client dig @dns_server example.com'"]
+    entrypoint: ["sh", "-c", "apk add --no-cache bind-tools && sleep 10 && echo 'DNS Client ready. Run: docker exec -it dns_client dig @dns_server -p 53 example.com'"]
     networks:
       - proxy_network
 
@@ -102,8 +103,8 @@ services:
     image: ubuntu:latest
     container_name: telnet_server
     ports:
-      - "23:23"
-    command: bash -c "apt-get update && apt-get install -y telnetd && service xinetd start && tail -f /dev/null"
+      - "127.0.0.1:2323:23"  # Changed from 23 to 2323
+    command: bash -c "apt-get update && apt-get install -y telnetd telnet inetutils-inetd && echo 'telnet stream tcp nowait telnetd /usr/sbin/tcpd /usr/sbin/in.telnetd' > /etc/inetd.conf && inetd -d && tail -f /dev/null"
     networks:
       - proxy_network
 
