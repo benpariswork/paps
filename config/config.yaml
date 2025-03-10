@@ -1,0 +1,55 @@
+# Protocol Agnostic Proxy Configuration
+
+server:
+  host: 0.0.0.0
+  port: 8080
+  max_connections: 100
+  buffer_size: 4096
+  timeout: 30  # seconds
+
+protocols:
+  http:
+    enabled: true
+    port: 8080
+    inspection_mode: both  # raw, parsed, or both
+    
+  ftp:
+    enabled: true
+    port: 2121
+    inspection_mode: both
+    
+  dns:
+    enabled: true
+    port: 5353
+    inspection_mode: both
+    
+  telnet:
+    enabled: true
+    port: 2323
+    inspection_mode: both
+
+logging:
+  elasticsearch:
+    enabled: true
+    hosts:
+      - http://localhost:9200
+    index_prefix: proxy-logs
+    batch_size: 100
+    flush_interval: 5  # seconds
+  
+  file:
+    enabled: true
+    path: logs/proxy.log
+    level: INFO
+    rotation: daily
+    retention: 7  # days
+
+inspection:
+  pause_by_default: false
+  save_captured_packets: true
+  packet_storage_path: data/packets
+  max_packet_storage: 1000  # MB
+
+security:
+  tls_cert: certs/server.crt
+  tls_key: certs/server.key

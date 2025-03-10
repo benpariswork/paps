@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTTP Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-left: 5px solid #007bff;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Protocol Agnostic Proxy - HTTP Test</h1>
+        
+        <div class="info">
+            <p>This page is served by the HTTP test server in the Docker test environment.</p>
+            <p>If you can see this page through the proxy, the HTTP protocol handler is working correctly.</p>
+        </div>
+        
+        <h2>Testing Instructions</h2>
+        <ol>
+            <li>Start the proxy server targeting this HTTP server</li>
+            <li>Configure your browser to use the proxy</li>
+            <li>Access this page through the proxy</li>
+            <li>Check the proxy logs to see the intercepted HTTP traffic</li>
+        </ol>
+        
+        <h2>Additional Test Resources</h2>
+        <ul>
+            <li><a href="test-get.html">GET request test</a></li>
+            <li><a href="test-post.html">POST request test</a></li>
+            <li><a href="test-headers.html">Custom headers test</a></li>
+        </ul>
+    </div>
+</body>
+</html>

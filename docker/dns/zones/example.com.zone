@@ -1,0 +1,39 @@
+$TTL 3600
+@       IN      SOA     ns1.example.com. admin.example.com. (
+                        2023092601      ; Serial
+                        3600            ; Refresh
+                        1800            ; Retry
+                        604800          ; Expire
+                        86400 )         ; Minimum TTL
+
+        IN      NS      ns1.example.com.
+        IN      NS      ns2.example.com.
+        IN      MX      10 mail.example.com.
+
+; Name servers
+ns1     IN      A       127.0.0.1
+ns2     IN      A       127.0.0.2
+
+; Mail server
+mail    IN      A       127.0.0.3
+        IN      TXT     "v=spf1 mx -all"
+
+; Web servers
+@       IN      A       127.0.0.10
+www     IN      A       127.0.0.10
+api     IN      A       127.0.0.11
+dev     IN      A       127.0.0.12
+
+; CNAME records
+webmail IN      CNAME   mail.example.com.
+docs    IN      CNAME   www.example.com.
+
+; Test records for different types
+test-a          IN      A       127.0.0.20
+test-aaaa       IN      AAAA    ::1
+test-txt        IN      TXT     "This is a test TXT record"
+test-srv        IN      SRV     0 5 5060 sip.example.com.
+
+; Subdomain
+subdomain       IN      NS      ns1.subdomain.example.com.
+ns1.subdomain   IN      A       127.0.0.30

@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "message": "Your form was submitted successfully",
+  "timestamp": "2023-09-26T15:35:12Z",
+  "submitted_data": {
+    "name": "Test User",
+    "email": "test@example.com",
+    "message": "This is a test message sent via POST request."
+  }
+}

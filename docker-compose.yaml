@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  # Elasticsearch for logging
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    container_name: proxy_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - proxy_network
+
+  # Kibana for log visualization
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.6.2
+    container_name: proxy_kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - proxy_network
+
+  # HTTP test environment
+  http_server:
+    image: httpd:2.4
+    container_name: http_server
+    ports:
+      - "8081:80"
+    volumes:
+      - ./docker/http/htdocs:/usr/local/apache2/htdocs/
+    networks:
+      - proxy_network
+
+  http_client:
+    image: curlimages/curl:latest
+    container_name: http_client
+    depends_on:
+      - http_server
+    entrypoint: ["sh", "-c", "sleep 10 && echo 'HTTP Client ready. Run: docker exec -it http_client curl -v http://http_server'"]
+    networks:
+      - proxy_network
+
+  # FTP test environment
+  ftp_server:
+    image: stilliard/pure-ftpd
+    container_name: ftp_server
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    environment:
+      - PUBLICHOST=localhost
+      - FTP_USER_NAME=testuser
+      - FTP_USER_PASS=testpass
+      - FTP_USER_HOME=/home/ftpuser
+    volumes:
+      - ./docker/ftp/data:/home/ftpuser
+    networks:
+      - proxy_network
+
+  ftp_client:
+    image: alpine:latest
+    container_name: ftp_client
+    depends_on:
+      - ftp_server
+    entrypoint: ["sh", "-c", "apk add --no-cache ftp && sleep 10 && echo 'FTP Client ready. Run: docker exec -it ftp_client ftp -p ftp_server'"]
+    networks:
+      - proxy_network
+
+  # DNS test environment
+  dns_server:
+    image: resystit/bind9:latest
+    container_name: dns_server
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - ./docker/dns/config:/etc/bind
+      - ./docker/dns/zones:/var/lib/bind
+    networks:
+      - proxy_network
+
+  dns_client:
+    image: alpine:latest
+    container_name: dns_client
+    depends_on:
+      - dns_server
+    entrypoint: ["sh", "-c", "apk add --no-cache bind-tools && sleep 10 && echo 'DNS Client ready. Run: docker exec -it dns_client dig @dns_server example.com'"]
+    networks:
+      - proxy_network
+
+  # Telnet test environment
+  telnet_server:
+    image: thenewvu/telnetd
+    container_name: telnet_server
+    ports:
+      - "23:23"
+    networks:
+      - proxy_network
+
+  telnet_client:
+    image: alpine:latest
+    container_name: telnet_client
+    depends_on:
+      - telnet_server
+    entrypoint: ["sh", "-c", "apk add --no-cache busybox-extras && sleep 10 && echo 'Telnet Client ready. Run: docker exec -it telnet_client telnet telnet_server'"]
+    networks:
+      - proxy_network
+
+networks:
+  proxy_network:
+    driver: bridge
+
+volumes:
+  es_data:
+    driver: local

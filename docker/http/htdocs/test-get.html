@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTTP GET Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTTP GET Request Test</h1>
+        
+        <p>This page tests HTTP GET requests through the proxy.</p>
+        
+        <button id="testBtn" class="test-btn">Send GET Request</button>
+        
+        <div id="result" class="result">
+            <p>Results will appear here...</p>
+        </div>
+        
+        <script>
+            document.getElementById('testBtn').addEventListener('click', function() {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '<p>Sending GET request...</p>';
+                
+                fetch('test-data.json?param1=value1&param2=value2', {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Test-Header': 'Test-Value'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    resultDiv.innerHTML = `
+                        <h3>GET Request Successful</h3>
+                        <p>Status: ${data.status}</p>
+                        <p>Message: ${data.message}</p>
+                        <p>Timestamp: ${data.timestamp}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `
+                        <h3>Error</h3>
+                        <p>${error.message}</p>
+                    `;
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>

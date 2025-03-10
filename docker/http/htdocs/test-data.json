@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "message": "This is a test JSON response",
+  "timestamp": "2023-09-26T15:30:45Z",
+  "test_data": {
+    "string": "Hello World",
+    "number": 42,
+    "boolean": true,
+    "null_value": null,
+    "array": [1, 2, 3, 4, 5],
+    "nested": {
+      "key1": "value1",
+      "key2": "value2"
+    }
+  }
+}

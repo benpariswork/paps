@@ -1,0 +1,26 @@
+This is a test file for the FTP protocol handler.
+
+The Protocol Agnostic Proxy Server should be able to intercept and analyze 
+FTP traffic when transferring this file.
+
+Test information:
+- Filename: test-file.txt
+- Size: ~300 bytes
+- Content: Plain text
+
+You can use this file to test:
+1. Directory listings (LIST command)
+2. File downloads (RETR command)
+3. File uploads (STOR command)
+
+When testing the FTP protocol handler, check that the proxy:
+- Correctly handles FTP commands and responses
+- Properly parses control channel traffic
+- Manages active and passive mode connections
+- Preserves file content during transfers
+
+FTP Protocol Handler Features:
+- Command parsing and analysis
+- Response code categorization
+- Data channel handling
+- Passive mode support

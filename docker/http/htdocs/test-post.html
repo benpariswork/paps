@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>HTTP POST Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .test-btn {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>HTTP POST Request Test</h1>
+        
+        <p>This page tests HTTP POST requests through the proxy.</p>
+        
+        <form id="postForm">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name" value="Test User">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" value="test@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="4">This is a test message sent via POST request.</textarea>
+            </div>
+            
+            <button type="submit" class="test-btn">Send POST Request</button>
+        </form>
+        
+        <div id="result" class="result">
+            <p>Results will appear here...</p>
+        </div>
+        
+        <script>
+            document.getElementById('postForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = '<p>Sending POST request...</p>';
+                
+                const formData = new FormData(this);
+                const data = {};
+                formData.forEach((value, key) => {
+                    data[key] = value;
+                });
+                
+                fetch('test-post-handler.json', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Test-Header': 'Test-Value-Post'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(responseData => {
+                    resultDiv.innerHTML = `
+                        <h3>POST Request Successful</h3>
+                        <p>Status: ${responseData.status}</p>
+                        <p>Message: ${responseData.message}</p>
+                        <h4>Submitted Data:</h4>
+                        <pre>${JSON.stringify(responseData.submitted_data, null, 2)}</pre>
+                    `;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `
+                        <h3>Error</h3>
+                        <p>${error.message}</p>
+                    `;
+                });
+            });
+        </script>
+    </div>
+</body>
+</html>
