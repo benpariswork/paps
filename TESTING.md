@@ -10,9 +10,23 @@ This document provides instructions for testing the Protocol Agnostic Proxy Serv
 
 ## Setting Up the Test Environment
 
-1. Start the Docker test environments:
+### Docker Setup
 
+1. Ensure Docker daemon is running:
 ```bash
+# Check if Docker daemon is running
+systemctl status docker
+
+# Start Docker daemon if not running
+sudo systemctl start docker
+```
+
+2. Start the Docker test environments:
+```bash
+# You may need to run Docker Compose with sudo depending on your Docker installation
+sudo docker-compose up -d
+
+# If you've configured Docker for non-root users, you can run without sudo:
 docker-compose up -d
 ```
 
@@ -20,15 +34,16 @@ This will start:
 - Elasticsearch and Kibana for logging
 - HTTP, FTP, DNS, and Telnet test servers and clients
 
-2. Install the proxy server:
+### Proxy Server Setup
 
+1. Install the proxy server:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-3. Configure the proxy server:
+2. Configure the proxy server:
    
 Edit `config/config.yaml` to set appropriate targets for each protocol.
 
@@ -37,7 +52,6 @@ Edit `config/config.yaml` to set appropriate targets for each protocol.
 ### Setup
 
 1. Start the proxy server:
-
 ```bash
 python src/main.py
 ```
@@ -186,17 +200,30 @@ pytest --cov=src
 
 ### Common Issues
 
-1. **Connection Refused**
+1. **Docker Permission Issues**
+   - If you get "permission denied" errors when running Docker commands, try using `sudo` or add your user to the docker group:
+     ```bash
+     sudo usermod -aG docker $USER
+     # Log out and log back in for changes to take effect
+     ```
+
+2. **Docker Daemon Not Running**
+   - If you get "Cannot connect to the Docker daemon" error, start the Docker service:
+     ```bash
+     sudo systemctl start docker
+     ```
+
+3. **Connection Refused**
    - Ensure the Docker containers are running
    - Check the proxy server is listening on the expected ports
    - Verify no firewall is blocking connections
 
-2. **Protocol Handler Not Working**
+4. **Protocol Handler Not Working**
    - Ensure the protocol is enabled in the configuration
    - Check for errors in the proxy server logs
    - Verify the target server address in the configuration
 
-3. **Elasticsearch Connection Issues**
+5. **Elasticsearch Connection Issues**
    - Ensure Elasticsearch container is running
    - Check the Elasticsearch URL in the configuration
    - Verify Elasticsearch logs for any errors
@@ -206,10 +233,10 @@ pytest --cov=src
 - Proxy server logs: Check the console output or log file
 - Docker container logs:
   ```bash
-  docker logs http_server
-  docker logs ftp_server
-  docker logs dns_server
-  docker logs telnet_server
+  sudo docker logs http_server
+  sudo docker logs ftp_server
+  sudo docker logs dns_server
+  sudo docker logs telnet_server
   ```
 
 ## Testing Packet Inspection Features

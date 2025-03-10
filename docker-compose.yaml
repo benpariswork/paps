@@ -1,9 +1,8 @@
-version: '3.8'
-
+# Remove 'version' field to fix warning
 services:
   # Elasticsearch for logging
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.2
+    image: elasticsearch:8.6.2
     container_name: proxy_elasticsearch
     environment:
       - discovery.type=single-node
@@ -18,7 +17,7 @@ services:
 
   # Kibana for log visualization
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.6.2
+    image: kibana:8.6.2
     container_name: proxy_kibana
     ports:
       - "5601:5601"
@@ -31,17 +30,17 @@ services:
 
   # HTTP test environment
   http_server:
-    image: httpd:2.4
+    image: nginx:latest
     container_name: http_server
     ports:
       - "8081:80"
     volumes:
-      - ./docker/http/htdocs:/usr/local/apache2/htdocs/
+      - ./docker/http/htdocs:/usr/share/nginx/html/
     networks:
       - proxy_network
 
   http_client:
-    image: curlimages/curl:latest
+    image: appropriate/curl:latest
     container_name: http_client
     depends_on:
       - http_server
@@ -51,18 +50,19 @@ services:
 
   # FTP test environment
   ftp_server:
-    image: stilliard/pure-ftpd
+    image: fauria/vsftpd
     container_name: ftp_server
     ports:
       - "21:21"
       - "30000-30009:30000-30009"
     environment:
-      - PUBLICHOST=localhost
-      - FTP_USER_NAME=testuser
-      - FTP_USER_PASS=testpass
-      - FTP_USER_HOME=/home/ftpuser
+      - FTP_USER=testuser
+      - FTP_PASS=testpass
+      - PASV_ADDRESS=localhost
+      - PASV_MIN_PORT=30000
+      - PASV_MAX_PORT=30009
     volumes:
-      - ./docker/ftp/data:/home/ftpuser
+      - ./docker/ftp/data:/home/vsftpd/testuser
     networks:
       - proxy_network
 
@@ -77,7 +77,7 @@ services:
 
   # DNS test environment
   dns_server:
-    image: resystit/bind9:latest
+    image: internetsystemsconsortium/bind9:9.18
     container_name: dns_server
     ports:
       - "53:53/udp"
@@ -97,12 +97,13 @@ services:
     networks:
       - proxy_network
 
-  # Telnet test environment
+  # Telnet test environment (using ubuntu with telnetd instead of thenewvu/telnetd)
   telnet_server:
-    image: thenewvu/telnetd
+    image: ubuntu:latest
     container_name: telnet_server
     ports:
       - "23:23"
+    command: bash -c "apt-get update && apt-get install -y telnetd && service xinetd start && tail -f /dev/null"
     networks:
       - proxy_network
 
